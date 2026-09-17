@@ -3,6 +3,62 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0](https://github.com/zendesk/zcli/compare/v1.3.0...v2.0.0) (2026-09-09)
+
+**Note:** Version bump only for package @zendesk/zcli-apps
+
+
+
+
+
+## [1.1.4](https://github.com/zendesk/zcli/compare/v1.1.3...v1.1.4) (2026-07-20)
+
+**Note:** Version bump only for package @zendesk/zcli-apps
+
+
+
+
+
+## [1.1.3](https://github.com/zendesk/zcli/compare/v1.1.2...v1.1.3) (2026-07-20)
+
+**Note:** Version bump only for package @zendesk/zcli-apps
+
+
+
+
+
+# [1.1.0](https://github.com/zendesk/zcli/compare/v1.0.1...v1.1.0) (2026-06-04)
+
+**Note:** Version bump only for package @zendesk/zcli-apps
+
+
+
+
+
+# [1.0.0](https://github.com/zendesk/zcli/compare/v1.0.0-beta.57...v1.0.0) (2026-04-23)
+
+**Note:** Version bump only for package @zendesk/zcli-apps
+
+
+
+
+
+# [1.0.0-beta.54](https://github.com/zendesk/zcli/compare/v1.0.0-beta.53...v1.0.0-beta.54) (2025-11-26)
+
+**Note:** Version bump only for package @zendesk/zcli-apps
+
+
+
+
+
+# [1.0.0-beta.53](https://github.com/zendesk/zcli/compare/v1.0.0-beta.52...v1.0.0-beta.53) (2025-07-07)
+
+**Note:** Version bump only for package @zendesk/zcli-apps
+
+
+
+
+
 # [1.0.0-beta.50](https://github.com/zendesk/zcli/compare/v1.0.0-beta.49...v1.0.0-beta.50) (2024-09-06)
 
 

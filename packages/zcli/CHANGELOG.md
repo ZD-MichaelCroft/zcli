@@ -3,6 +3,136 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0](https://github.com/zendesk/zcli/compare/v1.3.0...v2.0.0) (2026-09-09)
+
+
+* chore!: release 2.0.0 ([997f255](https://github.com/zendesk/zcli/commit/997f2554ef26b618cf3e1aedba04149c1c4ea3e6))
+
+
+### BREAKING CHANGES
+
+* removed API token interactive login (-i flag).
+
+
+
+
+
+# [1.3.0](https://github.com/zendesk/zcli/compare/v1.2.0...v1.3.0) (2026-09-09)
+
+
+### Features
+
+* **auth:** Support OAuth client credentials in zcli for CI/CD ([#407](https://github.com/zendesk/zcli/issues/407)) ([9b5e000](https://github.com/zendesk/zcli/commit/9b5e000bae65f56567737545acd6570533f258b2))
+
+
+
+
+
+# [1.2.0](https://github.com/zendesk/zcli/compare/v1.1.4...v1.2.0) (2026-08-17)
+
+
+### Features
+
+* **auth:** Add browser OAuth PKCE support and deprecate API tokens ([#392](https://github.com/zendesk/zcli/issues/392)) ([c52b105](https://github.com/zendesk/zcli/commit/c52b10534931fce2d4ef88760bfdb265c1b74c3a))
+
+
+
+
+
+## [1.1.4](https://github.com/zendesk/zcli/compare/v1.1.3...v1.1.4) (2026-07-20)
+
+**Note:** Version bump only for package @zendesk/zcli
+
+
+
+
+
+## [1.1.3](https://github.com/zendesk/zcli/compare/v1.1.2...v1.1.3) (2026-07-20)
+
+**Note:** Version bump only for package @zendesk/zcli
+
+
+
+
+
+## [1.1.2](https://github.com/zendesk/zcli/compare/v1.1.1...v1.1.2) (2026-07-05)
+
+**Note:** Version bump only for package @zendesk/zcli
+
+## [1.1.1](https://github.com/zendesk/zcli/compare/v1.1.0...v1.1.1) (2026-06-11)
+
+**Note:** Version bump only for package @zendesk/zcli
+
+
+
+
+# [1.1.0](https://github.com/zendesk/zcli/compare/v1.0.1...v1.1.0) (2026-06-04)
+
+**Note:** Version bump only for package @zendesk/zcli
+
+
+
+
+
+## [1.0.1](https://github.com/zendesk/zcli/compare/v1.0.0...v1.0.1) (2026-04-24)
+
+**Note:** Version bump only for package @zendesk/zcli
+
+
+
+
+
+# [1.0.0](https://github.com/zendesk/zcli/compare/v1.0.0-beta.57...v1.0.0) (2026-04-23)
+
+**Note:** Version bump only for package @zendesk/zcli
+
+
+
+
+
+# [1.0.0-beta.57](https://github.com/zendesk/zcli/compare/v1.0.0-beta.56...v1.0.0-beta.57) (2026-04-17)
+
+**Note:** Version bump only for package @zendesk/zcli
+
+
+
+
+
+# [1.0.0-beta.56](https://github.com/zendesk/zcli/compare/v1.0.0-beta.55...v1.0.0-beta.56) (2026-04-10)
+
+**Note:** Version bump only for package @zendesk/zcli
+
+
+
+
+
+# [1.0.0-beta.55](https://github.com/zendesk/zcli/compare/v1.0.0-beta.54...v1.0.0-beta.55) (2026-02-04)
+
+
+### Features
+
+* **VEG-4340:** Bootstrap a new package to onboard CLI commands for Connector SDK ([99c7b35](https://github.com/zendesk/zcli/commit/99c7b353166b2cdb26e21cadfef6b7b335cb475d))
+
+
+
+
+
+# [1.0.0-beta.54](https://github.com/zendesk/zcli/compare/v1.0.0-beta.53...v1.0.0-beta.54) (2025-11-26)
+
+**Note:** Version bump only for package @zendesk/zcli
+
+
+
+
+
+# [1.0.0-beta.53](https://github.com/zendesk/zcli/compare/v1.0.0-beta.52...v1.0.0-beta.53) (2025-07-07)
+
+**Note:** Version bump only for package @zendesk/zcli
+
+
+
+
+
 # [1.0.0-beta.52](https://github.com/zendesk/zcli/compare/v1.0.0-beta.51...v1.0.0-beta.52) (2024-12-18)
 
 **Note:** Version bump only for package @zendesk/zcli

@@ -1,9 +1,13 @@
 {
   "name": "@zendesk/zcli-apps",
   "description": "zcli apps commands live here",
-  "version": "1.0.0-beta.50",
-  "author": "@vegemite",
+  "version": "2.0.0",
+  "author": "@wattle",
   "npmRegistry": "https://registry.npmjs.org",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zendesk/zcli.git"
+  },
   "publishConfig": {
     "access": "public"
   },
@@ -17,9 +21,9 @@
     "type:check": "tsc"
   },
   "dependencies": {
-    "adm-zip": "0.5.10",
+    "adm-zip": "0.6.1",
     "archiver": "^5.3.1",
-    "axios": "^1.7.5",
+    "axios": "^1.12.0",
     "chalk": "^4.1.2",
     "cors": "^2.8.5",
     "express": "^4.21.2",
@@ -29,23 +33,20 @@
     "rimraf": "^3.0.2",
     "semver": "^7.3.2",
     "tslib": "^2.4.0",
-    "uuid": "^8.3.2"
+    "uuid": "^11.1.1"
   },
   "devDependencies": {
     "@oclif/test": "=2.1.0",
-    "@types/adm-zip": "^0.5.5",
     "@types/archiver": "^5.3.1",
     "@types/chai": "^4",
     "@types/cors": "^2.8.6",
     "@types/mocha": "^9.1.1",
     "@types/morgan": "^1.9.0",
     "@types/rimraf": "^3.0.2",
-    "@types/uuid": "^8.3.4",
     "chai": "^4",
     "eslint": "^8.18.0",
     "eslint-config-oclif": "^4.0.0",
     "eslint-config-oclif-typescript": "^1.0.2",
-    "lerna": "^5.6.2",
     "mocha": "^10.8.2",
     "sinon": "^14.0.0"
   },

@@ -4,6 +4,7 @@ import * as path from 'path'
 import UpdateCommand from '../../src/commands/themes/update'
 import env from './env'
 import * as sinon from 'sinon'
+import { CLIError } from '@oclif/core/lib/errors'
 
 describe('themes:update', function () {
   const baseThemePath = path.join(__dirname, 'mocks/base_theme')
@@ -53,6 +54,7 @@ describe('themes:update', function () {
         })).resolves({
           status: 200,
           ok: true,
+          headers: new Headers(),
           text: () => Promise.resolve('')
         })
       })
@@ -95,8 +97,8 @@ describe('themes:update', function () {
           await UpdateCommand.run([baseThemePath, '--themeId', '1234'])
         } catch (error) {
           expect(ctx.stderr).to.contain('!')
-          expect(error.message).to.contain('TooManyThemes')
-          expect(error.message).to.contain('Maximum number of allowed themes reached')
+          expect((error as CLIError).message).to.contain('TooManyThemes')
+          expect((error as CLIError).message).to.contain('Maximum number of allowed themes reached')
         }
       })
 
@@ -146,17 +148,18 @@ describe('themes:update', function () {
         })).resolves({
           status: 200,
           ok: true,
+          headers: new Headers(),
           text: () => Promise.resolve('')
         })
       })
-      .it('should report validation errors', async (ctx) => {
+      .it('should report validation errors', async () => {
         try {
           await UpdateCommand.run([baseThemePath, '--themeId', '1111'])
         } catch (error) {
-          expect(error.message).to.contain('InvalidTemplates')
-          expect(error.message).to.contain('Template(s) with syntax error(s)')
-          expect(error.message).to.contain('Validation error')
-          expect(error.message).to.contain("'request_fosrm' does not exist")
+          expect((error as CLIError).message).to.contain('InvalidTemplates')
+          expect((error as CLIError).message).to.contain('Template(s) with syntax error(s)')
+          expect((error as CLIError).message).to.contain('Validation error')
+          expect((error as CLIError).message).to.contain("'request_fosrm' does not exist")
         }
       })
   })

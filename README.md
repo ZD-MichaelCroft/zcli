@@ -5,7 +5,9 @@
 [![npm version](https://badge.fury.io/js/%40zendesk%2Fzcli.svg)](https://www.npmjs.com/package/@zendesk/zcli)
 ![Test](https://github.com/zendesk/zcli/workflows/Test/badge.svg)
 
-ZCLI is a Zendesk CLI which helps you build and manage your Zendesk apps and themes from the command line. ZCLI is currently available in beta and is built using the [oclif](https://github.com/oclif/oclif) framework.
+ZCLI is a Zendesk CLI which helps you build and manage your Zendesk apps and themes from the command line. ZCLI is built using the [oclif](https://github.com/oclif/oclif) framework.
+
+> **Note:** ZCLI is the successor to Zendesk App Tools (ZAT). If you're currently using ZAT, please migrate to ZCLI for the latest features and support.
 
 <img src="demo.gif" alt="Zendesk Logo" />
 
@@ -60,6 +62,7 @@ WSL2 now [supports running Linux GUI application](https://docs.microsoft.com/en-
 ZCLI supports numerous commands. Further documentation on available commands can be found [here.](/docs)
 
 - [`$ zcli apps`](/docs/apps.md) - manage zendesk apps workflow.
+- [`$ zcli connectors`](/docs/connectors.md) - manage zendesk connectors workflow. **[Early Access - Limited Availability]**
 - [`$ zcli themes`](/docs/themes.md) - manage zendesk themes workflow.
 - [`$ zcli profiles`](/docs/profiles.md) - manage zcli profiles.
 - [`$ zcli login`](/docs/login.md) - login to zendesk account.
@@ -85,7 +88,7 @@ Under Windows this can only be used in WSL2 or [Cygwin](https://www.cygwin.com).
 
 ---
 
-**Note:** While ZCLI is in beta, we are not routinely reviewing issues and merging community-submitted pull requests. We hope to begin reviewing these again soon, but for the moment we appreciate your patience.
+**Note:** We are not routinely reviewing issues and merging community-submitted pull requests. We hope to begin reviewing these again soon, but for the moment we appreciate your patience.
 
 ---
 
@@ -101,9 +104,8 @@ Some useful app scaffolds for build ZAF apps that incorporate the ZCLI tool are 
 
 # Releasing
 
-Running the following command will create release tags, generate change logs docs and publish to npm.
-
-[`$ ./scripts/release.sh`](./scripts/release.sh)
+1. Run the ["Create Release PR" workflow](https://github.com/zendesk/zcli/actions/workflows/create-release-pr.yml)
+2. Once the release PR is merged, a new version will be released and published to [npm](https://www.npmjs.com/package/@zendesk/zcli).
 
 # License
 

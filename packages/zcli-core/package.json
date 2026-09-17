@@ -1,9 +1,13 @@
 {
   "name": "@zendesk/zcli-core",
-  "version": "1.0.0-beta.49",
+  "version": "2.0.0",
   "description": "ZCLI core libraries and services",
   "main": "src/index.ts",
   "npmRegistry": "https://registry.npmjs.org",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zendesk/zcli.git"
+  },
   "keywords": [
     "zcli",
     "zendesk",
@@ -24,15 +28,16 @@
   },
   "dependencies": {
     "@oclif/plugin-plugins": "=2.1.12",
-    "axios": "^1.7.5",
+    "axios": "^1.12.0",
     "chalk": "^4.1.2",
-    "fs-extra": "^10.1.0"
+    "fs-extra": "^10.1.0",
+    "open": "^8.4.2"
   },
   "scripts": {
     "prepack": "tsc && ../../scripts/prepack.sh",
     "postpack": "rm -rf ./dist && git checkout ./package.json",
     "type:check": "tsc"
   },
-  "author": "@vegemite",
+  "author": "@wattle",
   "license": "ISC"
 }

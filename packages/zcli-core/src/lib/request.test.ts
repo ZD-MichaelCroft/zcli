@@ -1,9 +1,10 @@
 import { expect, test } from '@oclif/test'
 import * as sinon from 'sinon'
-import { createRequestConfig, requestAPI } from './request'
+import axios from 'axios'
+import { createRequestConfig, requestAPI, requestRaw } from './request'
 import * as requestUtils from './requestUtils'
 import Auth from './auth'
-import { Profile } from '../types'
+import SecureStore from './secureStore'
 
 describe('createRequestConfig', () => {
   test
@@ -16,6 +17,24 @@ describe('createRequestConfig', () => {
     .it('should create a request with an OAuth token', async () => {
       const req = await createRequestConfig('api/v2/me')
       expect(req.headers.Authorization).to.equal('Bearer good_token')
+    })
+
+  test
+    .env({
+      ZENDESK_SUBDOMAIN: 'z3ntest',
+      ZENDESK_OAUTH_CLIENT_ID: 'client-id',
+      ZENDESK_OAUTH_CLIENT_SECRET: 'client-secret'
+    })
+    .stub(requestUtils, 'getSubdomain', () => 'fake')
+    .stub(requestUtils, 'getDomain', () => 'fake.com')
+    .it('should create a request with a client-credentials token', async () => {
+      const auth = new Auth()
+      sinon.stub(auth.config, 'getConfig').resolves({
+        z3ntest: { accessToken: 'cc-token', expiresAt: Date.now() + 3600 * 1000, clientId: 'client-id' }
+      })
+      const req = await createRequestConfig('api/v2/me', {}, auth)
+      expect(req.headers.Authorization).to.equal('Bearer cc-token')
+      expect(req.baseURL).to.equal('https://z3ntest.zendesk.com')
     })
 
   test
@@ -82,9 +101,10 @@ describe('createRequestConfig', () => {
     })
     .stub(requestUtils, 'getSubdomain', () => 'ping')
     .stub(requestUtils, 'getDomain', () => 'me.com')
-    .stub(Auth, 'getLoggedInProfile', () : Profile => ({ subdomain: 'ping', domain: 'me.com' }))
     .it('should be able to create auth using profile subdomain and domain', async () => {
-      const req = await createRequestConfig('api/v2/me', {})
+      const auth = new Auth({ secureStore: new SecureStore() })
+      sinon.stub(auth, 'getLoggedInProfile').returns({ subdomain: 'ping', domain: 'me.com' })
+      const req = await createRequestConfig('api/v2/me', {}, auth)
       expect(req.baseURL).to.equal('https://ping.me.com')
       expect(req.headers.Authorization).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY=')
     })
@@ -104,8 +124,6 @@ describe('requestAPI', () => {
   test
     .env({
       ZENDESK_SUBDOMAIN: 'z3ntest',
-      ZENDESK_EMAIL: 'test@zendesk.com',
-      ZENDESK_API_TOKEN: '123456',
       ZENDESK_OAUTH_TOKEN: 'good_token'
     })
     .stub(requestUtils, 'getSubdomain', () => 'fake')
@@ -124,4 +142,144 @@ describe('requestAPI', () => {
       const response = await requestAPI('api/v2/me', { method: 'GET' })
       expect(response.status).to.equal(200)
     })
+
+  test
+    .env({
+      ZENDESK_SUBDOMAIN: 'z3ntest',
+      ZENDESK_OAUTH_TOKEN: 'stale_token'
+    })
+    .stub(requestUtils, 'getSubdomain', () => 'fake')
+    .stub(requestUtils, 'getDomain', () => 'fake.com')
+    .do(() => {
+      fetchStub.withArgs(sinon.match({
+        url: 'https://z3ntest.zendesk.com/api/v2/me',
+        method: 'GET'
+      })).resolves({
+        status: 401,
+        ok: false,
+        text: () => Promise.resolve('')
+      })
+    })
+    .it('should return the 401 response unmodified when there is nothing to refresh (env-based auth)', async () => {
+      const response = await requestAPI('api/v2/me', { method: 'GET' })
+      expect(response.status).to.equal(401)
+      expect(fetchStub.callCount).to.equal(1)
+    })
+
+  describe('with a refreshable OAuth profile', () => {
+    let forceRefreshStub: sinon.SinonStub
+    let loadKeytarStub: sinon.SinonStub
+
+    beforeEach(() => {
+      forceRefreshStub = sinon.stub(Auth.prototype, 'forceRefreshAuthorizationToken')
+      loadKeytarStub = sinon.stub(SecureStore.prototype, 'loadKeytar').resolves()
+    })
+
+    afterEach(() => {
+      forceRefreshStub.restore()
+      loadKeytarStub.restore()
+    })
+
+    test
+      .stub(requestUtils, 'getSubdomain', () => 'z3ntest')
+      .stub(requestUtils, 'getDomain', () => undefined)
+      .stub(Auth.prototype, 'getAuthorizationToken', () => 'Bearer stale-token')
+      .do(() => {
+        forceRefreshStub.resolves('Bearer refreshed-token')
+        fetchStub.withArgs(sinon.match((req: Request) =>
+          req.url === 'https://z3ntest.zendesk.com/api/v2/me' &&
+          req.headers.get('Authorization') === 'Bearer stale-token'
+        )).resolves({ status: 401, ok: false, text: () => Promise.resolve('') })
+        fetchStub.withArgs(sinon.match((req: Request) =>
+          req.url === 'https://z3ntest.zendesk.com/api/v2/me' &&
+          req.headers.get('Authorization') === 'Bearer refreshed-token'
+        )).resolves({ status: 200, ok: true, text: () => Promise.resolve('') })
+      })
+      .it('should retry once with a refreshed token and succeed', async () => {
+        const response = await requestAPI('api/v2/me', { method: 'GET' }, false)
+        expect(response.status).to.equal(200)
+        expect(forceRefreshStub.calledOnce).to.equal(true)
+        expect(fetchStub.callCount).to.equal(2)
+      })
+
+    test
+      .stub(requestUtils, 'getSubdomain', () => 'z3ntest')
+      .stub(requestUtils, 'getDomain', () => undefined)
+      .stub(Auth.prototype, 'getAuthorizationToken', () => 'Bearer stale-token')
+      .do(() => {
+        forceRefreshStub.resolves(undefined)
+        fetchStub.withArgs(sinon.match({
+          url: 'https://z3ntest.zendesk.com/api/v2/me'
+        })).resolves({ status: 401, ok: false, text: () => Promise.resolve('') })
+      })
+      .it('should give up and return the original 401 if refresh yields no token', async () => {
+        const response = await requestAPI('api/v2/me', { method: 'GET' })
+        expect(response.status).to.equal(401)
+        expect(fetchStub.callCount).to.equal(1)
+      })
+  })
+})
+
+describe('requestRaw', () => {
+  let axiosStub: sinon.SinonStub
+
+  beforeEach(() => {
+    axiosStub = sinon.stub(axios, 'request')
+  })
+
+  afterEach(() => {
+    axiosStub.restore()
+  })
+
+  it('should make a raw request without adding any extra headers', async () => {
+    axiosStub.resolves({
+      status: 200,
+      ok: true,
+      data: { result: 'ok' }
+    })
+
+    const customHeaders = { 'Content-Type': 'application/zip' }
+    const response = await requestRaw('https://example.com/upload', {
+      method: 'PUT',
+      headers: customHeaders,
+      data: Buffer.from('test')
+    })
+
+    expect(response.status).to.equal(200)
+    expect(axiosStub.called).to.equal(true)
+    const callArgs = axiosStub.firstCall.args[0]
+    expect(callArgs.headers).to.deep.equal(customHeaders)
+  })
+
+  it('should return 403 response without throwing error', async () => {
+    axiosStub.resolves({
+      status: 403,
+      ok: false,
+      data: { error: 'Access denied' }
+    })
+
+    const response = await requestRaw('https://example.com/upload', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/zip' }
+    })
+
+    expect(response.status).to.equal(403)
+    expect(response.data.error).to.equal('Access denied')
+  })
+
+  it('should throw error on 500 server error', async () => {
+    const axiosError = new Error('Server error')
+    ;(axiosError as any).response = { status: 500 }
+    axiosStub.rejects(axiosError)
+
+    try {
+      await requestRaw('https://example.com/api', {
+        method: 'POST',
+        data: { test: 'data' }
+      })
+      expect.fail('Should have thrown an error')
+    } catch (error) {
+      expect((error as any).response.status).to.equal(500)
+    }
+  })
 })

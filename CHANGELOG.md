@@ -3,6 +3,198 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0](https://github.com/zendesk/zcli/compare/v1.3.0...v2.0.0) (2026-09-09)
+
+
+* chore!: release 2.0.0 ([997f255](https://github.com/zendesk/zcli/commit/997f2554ef26b618cf3e1aedba04149c1c4ea3e6))
+
+
+### BREAKING CHANGES
+
+* removed API token interactive login (-i flag).
+
+
+
+
+
+# [1.3.0](https://github.com/zendesk/zcli/compare/v1.2.0...v1.3.0) (2026-09-09)
+
+
+### Bug Fixes
+
+* **ci:** use PAT for tag push so publish workflow triggers ([816a3f5](https://github.com/zendesk/zcli/commit/816a3f50d2e17da24bc888f3bcb4feca91d4c3d0))
+
+
+### Features
+
+* **auth:** Support OAuth client credentials in zcli for CI/CD ([#407](https://github.com/zendesk/zcli/issues/407)) ([9b5e000](https://github.com/zendesk/zcli/commit/9b5e000bae65f56567737545acd6570533f258b2))
+* **themes:** preview theme components with themes:preview ([226f494](https://github.com/zendesk/zcli/commit/226f494ac3ed15445cc106f7b3357df4b91438c0))
+
+
+
+
+
+# [1.2.0](https://github.com/zendesk/zcli/compare/v1.1.4...v1.2.0) (2026-08-17)
+
+
+### Features
+
+* **auth:** Add browser OAuth PKCE support and deprecate API tokens ([#392](https://github.com/zendesk/zcli/issues/392)) ([c52b105](https://github.com/zendesk/zcli/commit/c52b10534931fce2d4ef88760bfdb265c1b74c3a))
+
+
+
+
+
+## [1.1.4](https://github.com/zendesk/zcli/compare/v1.1.3...v1.1.4) (2026-07-20)
+
+**Note:** Version bump only for package zcli-monorepo
+
+
+
+
+
+## [1.1.3](https://github.com/zendesk/zcli/compare/v1.1.2...v1.1.3) (2026-07-20)
+
+**Note:** Version bump only for package zcli-monorepo
+
+
+
+
+
+## [1.1.2](https://github.com/zendesk/zcli/compare/v1.1.1...v1.1.2) (2026-07-05)
+
+
+### Bug Fixes
+
+* **connectors:** resolve Windows Vite "Entry module cannot be external" ([2fe9e71](https://github.com/zendesk/zcli/commit/2fe9e715b5ca642baf0c6e16b280588e036659f1))
+
+## [1.1.1](https://github.com/zendesk/zcli/compare/v1.1.0...v1.1.1) (2026-06-11)
+
+
+### Bug Fixes
+
+* **connectors:** add shell option for Windows tsc.cmd execution ([0b45571](https://github.com/zendesk/zcli/commit/0b45571483875d33dcde5c13789b97a110c6c478))
+* **connectors:** improve checkTypeScript error detail ([a607b56](https://github.com/zendesk/zcli/commit/a607b566b2e57d9b24bfc0e5081096cf85bcdd0c))
+
+
+
+
+
+# [1.1.0](https://github.com/zendesk/zcli/compare/v1.0.1...v1.1.0) (2026-06-04)
+
+
+### Bug Fixes
+
+* create intermediate directories when rewriting nested templates ([806b6f8](https://github.com/zendesk/zcli/commit/806b6f868758b8982757983c7a4dfae6e8452213))
+* preserve :line:column suffix when either is 0 in validationErrorsToString ([de10e46](https://github.com/zendesk/zcli/commit/de10e464141159f63830ad373d527e3445d7b191))
+* revalidate theme on file add/delete during themes:preview ([7c64a1d](https://github.com/zendesk/zcli/commit/7c64a1d40a20479b5d929ed8d92be0978101c936))
+* stop sending local preview URLs in themes:migrate payload ([264ef00](https://github.com/zendesk/zcli/commit/264ef00872959c7a0a68b618e460c9ed6bb63070))
+* **themes:** drop extra blank line in types.ts to satisfy eslint ([c029b11](https://github.com/zendesk/zcli/commit/c029b11ffe5b26e1a4a30732f9642bc393d62968))
+* throw CLIError on write failures in rewriteAssets and rewriteTemplates ([3ac1b31](https://github.com/zendesk/zcli/commit/3ac1b31c676281f25dbcb51797493bdbc92f1a14))
+
+
+### Features
+
+* **themes:** send style.css and script.js through themes:migrate ([f1d96f3](https://github.com/zendesk/zcli/commit/f1d96f3e35abd5951419d29be888d91fce221f4c))
+* **themes:** wire themes:migrate to the new endpoint contract ([1bbac7b](https://github.com/zendesk/zcli/commit/1bbac7bf0e9d8b98978e31873dba8414bb5ca65d))
+* write migrated assets to theme during themes:migrate ([1cc34d5](https://github.com/zendesk/zcli/commit/1cc34d50d3485962356c788593fd7389a0856abf))
+
+
+
+
+
+## [1.0.1](https://github.com/zendesk/zcli/compare/v1.0.0...v1.0.1) (2026-04-24)
+
+**Note:** Version bump only for package zcli-monorepo
+
+
+
+
+
+# [1.0.0](https://github.com/zendesk/zcli/compare/v1.0.0-beta.57...v1.0.0) (2026-04-23)
+
+**Note:** Version bump only for package zcli-monorepo
+
+
+
+
+
+# [1.0.0-beta.57](https://github.com/zendesk/zcli/compare/v1.0.0-beta.56...v1.0.0-beta.57) (2026-04-17)
+
+
+### Bug Fixes
+
+* dedicated 404 error handling and improved error messages for connectors delete command ([103fb63](https://github.com/zendesk/zcli/commit/103fb634af7e33459c1034ba8f68a3c3baf5e673))
+* use project-local tsc for type checking ([d51c611](https://github.com/zendesk/zcli/commit/d51c61187e327ef2db227887ff03c611160ffd02))
+
+
+
+
+
+# [1.0.0-beta.56](https://github.com/zendesk/zcli/compare/v1.0.0-beta.55...v1.0.0-beta.56) (2026-04-10)
+
+
+### Bug Fixes
+
+* adding condition for spinner and exit 1 ([cb40a5c](https://github.com/zendesk/zcli/commit/cb40a5cd8cf2625f4cfe5b633ed0e114d3de3285))
+* adding tests for list command ([85973ff](https://github.com/zendesk/zcli/commit/85973ff8cac398371826c45b30438e5ee1bb2a6c))
+* addressing review comments for delete command ([811350d](https://github.com/zendesk/zcli/commit/811350de94c14560e1079040a378dd08a5811461))
+* apply suggestions from code review ([2051a88](https://github.com/zendesk/zcli/commit/2051a88ea0c63ca9636cc790f526fb3b635efafc))
+* connectors template scaffold to use versions of its dependencies in package.json and correctly valid typescript config for connectors ([7c925dc](https://github.com/zendesk/zcli/commit/7c925dcc1d7d0363f6aa6952ff1fd0404d4ddca7))
+* fixing failing test for list ([f036f8c](https://github.com/zendesk/zcli/commit/f036f8c91378e3246215334fce146fb63dbefd77))
+* fixing failing tests ([d121777](https://github.com/zendesk/zcli/commit/d121777494049abbb52a15d120f22ba5cf1580a4))
+* fixing json mode remainder ([d98ce2e](https://github.com/zendesk/zcli/commit/d98ce2e9283b27c45662ff8677af1f61a4262dbc))
+* lint and test fixes ([5443258](https://github.com/zendesk/zcli/commit/544325863555957832df47e8f897109e05c53b41))
+* missing dependencies when running connectors:bundle ([cab8c95](https://github.com/zendesk/zcli/commit/cab8c95948f6220a418ff9417f590d42c888719c))
+* modifying endpoint for list ([a48dec3](https://github.com/zendesk/zcli/commit/a48dec3a662510513d9d5b94e9db355822298ee1))
+* refactoring non 200 response case ([1e027c5](https://github.com/zendesk/zcli/commit/1e027c551c25595ba80088a7891e6cbe1dd281b1))
+* remove connector nice id column ([fa3f671](https://github.com/zendesk/zcli/commit/fa3f6715d3e5fdd834d58595b0b030d1f0cd05d0))
+* removing json flag for zcli ([b668f86](https://github.com/zendesk/zcli/commit/b668f86fee8eb3c2a6f8cf3c246a7da6b49aed6f))
+* removng localestriing conversion ([2561ff4](https://github.com/zendesk/zcli/commit/2561ff4a062034ea622ac7332adcf532f95bcd0c))
+* update response log based on review ([1f32669](https://github.com/zendesk/zcli/commit/1f326692e736b3e01a2c47b3afbbf89e1ad11710))
+
+
+### Features
+
+* add connector starter template ([88014b7](https://github.com/zendesk/zcli/commit/88014b76be04f38e8e3b9a4fc4c4b8fded449db3))
+* adding list command to connectors zcli ([61a94c7](https://github.com/zendesk/zcli/commit/61a94c737fca4cc7531486bf628efa131f780d10))
+* adding zcli delete command ([6b37377](https://github.com/zendesk/zcli/commit/6b373775ac438ed30729cd9692954db7ef438d27))
+* **connectors:** include logo in starter template ([b8d8cd8](https://github.com/zendesk/zcli/commit/b8d8cd8e3032f67adb837c6f60a3e97a6d30f985))
+* implements create connector from copying the connector starter ([c3353e0](https://github.com/zendesk/zcli/commit/c3353e0747605385dfb6b2f13198daddf9f746f0))
+* init connector:create command no logic just plumbing ([3742875](https://github.com/zendesk/zcli/commit/3742875e7f3cb2e49386a957224ccb65f425ef39))
+* **VEG-3619:** Add connector bump command in zcli ([4b69c0c](https://github.com/zendesk/zcli/commit/4b69c0c467610bfca757e539f8f920a145a0f8a2))
+
+
+
+
+
+# [1.0.0-beta.55](https://github.com/zendesk/zcli/compare/v1.0.0-beta.54...v1.0.0-beta.55) (2026-02-04)
+
+
+### Features
+
+* **VEG-4340:** Bootstrap a new package to onboard CLI commands for Connector SDK ([99c7b35](https://github.com/zendesk/zcli/commit/99c7b353166b2cdb26e21cadfef6b7b335cb475d))
+
+
+
+
+
+# [1.0.0-beta.54](https://github.com/zendesk/zcli/compare/v1.0.0-beta.53...v1.0.0-beta.54) (2025-11-26)
+
+**Note:** Version bump only for package zcli-monorepo
+
+
+
+
+
+# [1.0.0-beta.53](https://github.com/zendesk/zcli/compare/v1.0.0-beta.52...v1.0.0-beta.53) (2025-07-07)
+
+**Note:** Version bump only for package zcli-monorepo
+
+
+
+
+
 # [1.0.0-beta.52](https://github.com/zendesk/zcli/compare/v1.0.0-beta.51...v1.0.0-beta.52) (2024-12-18)
 
 

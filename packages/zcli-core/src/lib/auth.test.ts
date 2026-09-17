@@ -1,10 +1,9 @@
 import { expect, test } from '@oclif/test'
 import * as sinon from 'sinon'
-import { CliUx } from '@oclif/core'
 import * as chalk from 'chalk'
 import Auth from './auth'
 import SecureStore from './secureStore'
-import { Profile } from '../types'
+import * as oauth from './oauth'
 
 describe('Auth', () => {
   describe('createBasicAuthToken', () => {
@@ -28,12 +27,193 @@ describe('Auth', () => {
 
     test
       .env({
+        ZENDESK_SUBDOMAIN: 'z3ntest',
+        ZENDESK_OAUTH_CLIENT_ID: 'client-id',
+        ZENDESK_OAUTH_CLIENT_SECRET: 'client-secret'
+      })
+      .do(async () => {
+        const getConfigStub = sinon.stub(auth.config, 'getConfig').resolves(undefined)
+        const setConfigStub = sinon.stub(auth.config, 'setConfig').resolves()
+        const tokenStub = sinon.stub(oauth, 'fetchClientCredentialsToken').resolves({
+          access_token: 'client-credentials-token',
+          expires_in: 3600
+        })
+        try {
+          expect(await auth.getAuthorizationToken()).to.equal('Bearer client-credentials-token')
+          expect(tokenStub.calledWith({
+            subdomain: 'z3ntest',
+            domain: undefined,
+            clientId: 'client-id',
+            clientSecret: 'client-secret'
+          })).to.equal(true)
+          expect(setConfigStub.calledWith('clientCredentialsTokens', sinon.match({
+            z3ntest: sinon.match({
+              accessToken: 'client-credentials-token'
+            })
+          }))).to.equal(true)
+        } finally {
+          getConfigStub.restore()
+          setConfigStub.restore()
+          tokenStub.restore()
+        }
+      })
+      .it('should obtain and cache a Bearer token using client credentials')
+
+    test
+      .env({
+        ZENDESK_SUBDOMAIN: 'z3ntest',
+        ZENDESK_OAUTH_CLIENT_ID: 'client-id',
+        ZENDESK_OAUTH_CLIENT_SECRET: 'client-secret'
+      })
+      .do(async () => {
+        const getConfigStub = sinon.stub(auth.config, 'getConfig').resolves({
+          z3ntest: { accessToken: 'cached-token', expiresAt: Date.now() + 3600 * 1000, clientId: 'client-id' }
+        })
+        const tokenStub = sinon.stub(oauth, 'fetchClientCredentialsToken')
+        try {
+          expect(await auth.getAuthorizationToken()).to.equal('Bearer cached-token')
+          expect(tokenStub.called).to.equal(false)
+        } finally {
+          getConfigStub.restore()
+          tokenStub.restore()
+        }
+      })
+      .it('should use a non-expired cached client-credentials token')
+
+    test
+      .env({
+        ZENDESK_SUBDOMAIN: 'z3ntest',
+        ZENDESK_OAUTH_CLIENT_ID: 'client-id',
+        ZENDESK_OAUTH_CLIENT_SECRET: 'client-secret'
+      })
+      .do(async () => {
+        const getConfigStub = sinon.stub(auth.config, 'getConfig').resolves({
+          z3ntest: { accessToken: 'expired-token', expiresAt: Date.now() - 1000, clientId: 'client-id' }
+        })
+        const setConfigStub = sinon.stub(auth.config, 'setConfig').resolves()
+        const tokenStub = sinon.stub(oauth, 'fetchClientCredentialsToken').resolves({
+          access_token: 'replacement-token',
+          expires_in: 3600
+        })
+        try {
+          expect(await auth.getAuthorizationToken()).to.equal('Bearer replacement-token')
+          expect(tokenStub.calledOnce).to.equal(true)
+          expect(setConfigStub.called).to.equal(true)
+        } finally {
+          getConfigStub.restore()
+          setConfigStub.restore()
+          tokenStub.restore()
+        }
+      })
+      .it('should obtain a new client-credentials token when the cached token is expired')
+
+    test
+      .env({
+        ZENDESK_SUBDOMAIN: '',
+        ZENDESK_OAUTH_CLIENT_ID: 'client-id',
+        ZENDESK_OAUTH_CLIENT_SECRET: 'client-secret'
+      })
+      .do(async () => {
+        await auth.getAuthorizationToken()
+      })
+      .catch(chalk.red('OAuth client credentials require ZENDESK_SUBDOMAIN.'))
+      .it('should require a subdomain for client credentials')
+
+    test
+      .env({
+        ZENDESK_SUBDOMAIN: 'z3ntest',
+        ZENDESK_OAUTH_TOKEN: 'static-oauth-token',
+        ZENDESK_OAUTH_CLIENT_ID: 'client-id',
+        ZENDESK_OAUTH_CLIENT_SECRET: 'client-secret'
+      })
+      .do(async () => {
+        const getConfigStub = sinon.stub(auth.config, 'getConfig').resolves(undefined)
+        const setConfigStub = sinon.stub(auth.config, 'setConfig').resolves()
+        const tokenStub = sinon.stub(oauth, 'fetchClientCredentialsToken').resolves({
+          access_token: 'client-credentials-token',
+          expires_in: 3600
+        })
+        try {
+          expect(await auth.getAuthorizationToken()).to.equal('Bearer static-oauth-token')
+          expect(tokenStub.called).to.equal(false)
+        } finally {
+          getConfigStub.restore()
+          setConfigStub.restore()
+          tokenStub.restore()
+        }
+      })
+      .it('should use a direct OAuth token when it is configured with client credentials')
+
+    test
+      .env({
+        ZENDESK_OAUTH_CLIENT_ID: 'client-id'
+      })
+      .stub(auth, 'getLoggedInProfile', () => undefined)
+      .it('should ignore incomplete client credentials when no API token is present', async () => {
+        expect(await auth.getAuthorizationToken()).to.equal(undefined)
+      })
+
+    test
+      .env({
+        ZENDESK_OAUTH_CLIENT_ID: 'client-id',
         ZENDESK_EMAIL: 'test@zendesk.com',
         ZENDESK_API_TOKEN: 'test_api_token'
       })
-      .it('should return basic token if ZENDESK_EMAIL and ZENDESK_API_TOKEN is set', async () => {
-        expect(await auth.getAuthorizationToken()).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjp0ZXN0X2FwaV90b2tlbg==')
+      .do(async () => {
+        const warningStub = sinon.stub(console, 'warn')
+        try {
+          expect(await auth.getAuthorizationToken()).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjp0ZXN0X2FwaV90b2tlbg==')
+          expect(warningStub.calledOnce).to.equal(true)
+        } finally {
+          warningStub.restore()
+        }
       })
+      .it('should fall back to the API token when client credentials are incomplete')
+
+    test
+      .env({
+        ZENDESK_EMAIL: 'test@zendesk.com',
+        ZENDESK_API_TOKEN: 'test_api_token'
+      })
+      .do(async () => {
+        const warningStub = sinon.stub(console, 'warn')
+        try {
+          expect(await auth.getAuthorizationToken()).to.equal('Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjp0ZXN0X2FwaV90b2tlbg==')
+          expect(warningStub.calledOnce).to.equal(true)
+          expect(warningStub.firstCall.args[0]).to.equal(chalk.yellow('Warning: API token authentication is deprecated, but will continue to be used until it is fully removed.'))
+        } finally {
+          warningStub.restore()
+        }
+      })
+      .it('should return basic token and warn if ZENDESK_EMAIL and ZENDESK_API_TOKEN is set')
+
+    test
+      .env({
+        ZENDESK_SUBDOMAIN: 'z3ntest',
+        ZENDESK_OAUTH_CLIENT_ID: 'client-id',
+        ZENDESK_OAUTH_CLIENT_SECRET: 'client-secret',
+        ZENDESK_EMAIL: 'test@zendesk.com',
+        ZENDESK_API_TOKEN: 'test_api_token'
+      })
+      .do(async () => {
+        const warningStub = sinon.stub(console, 'warn')
+        const getConfigStub = sinon.stub(auth.config, 'getConfig').resolves(undefined)
+        const setConfigStub = sinon.stub(auth.config, 'setConfig').resolves()
+        const tokenStub = sinon.stub(oauth, 'fetchClientCredentialsToken').resolves({
+          access_token: 'client-credentials-token',
+          expires_in: 3600
+        })
+        try {
+          expect(await auth.getAuthorizationToken()).to.equal('Bearer client-credentials-token')
+          expect(warningStub.called).to.equal(false)
+        } finally {
+          warningStub.restore()
+          getConfigStub.restore()
+          setConfigStub.restore()
+          tokenStub.restore()
+        }
+      })
+      .it('should use client credentials without a warning when both API token and client credentials are configured')
 
     test
       .stub(auth, 'getLoggedInProfile', () => ({ subdomain: 'z3ntest' }))
@@ -43,13 +223,68 @@ describe('Auth', () => {
       })
 
     test
+      .stub(auth, 'getLoggedInProfile', () => ({ subdomain: 'z3ntest' }))
+      .stub(auth.secureStore, 'getSecret', () => oauth.encodeOAuthSecret('at', 'rt', 3600))
+      .it('should return a Bearer token for a non-expired OAuth secret without refreshing', async () => {
+        const refreshSpy = sinon.stub(oauth, 'refreshAccessToken')
+        try {
+          expect(await auth.getAuthorizationToken()).to.equal('Bearer at')
+          expect(refreshSpy.called).to.equal(false)
+        } finally {
+          refreshSpy.restore()
+        }
+      })
+
+    test
+      .stub(auth, 'getLoggedInProfile', () => ({ subdomain: 'z3ntest' }))
+      .stub(auth.secureStore, 'getSecret', () => oauth.encodeOAuthSecret('old-at', 'old-rt', -3600))
+      .it('should refresh and store a new token when the stored OAuth secret is expired', async () => {
+        const refreshStub = sinon.stub(oauth, 'refreshAccessToken').resolves({
+          access_token: 'new-at',
+          refresh_token: 'new-rt',
+          expires_in: 3600,
+          token_type: 'bearer',
+          scope: 'read write'
+        })
+        const setSecretStub = sinon.stub(auth.secureStore as SecureStore, 'setSecret').resolves()
+        try {
+          expect(await auth.getAuthorizationToken()).to.equal('Bearer new-at')
+          expect(setSecretStub.calledWith('z3ntest')).to.equal(true)
+        } finally {
+          refreshStub.restore()
+          setSecretStub.restore()
+        }
+      })
+
+    test
+      .stub(auth, 'getLoggedInProfile', () => ({ subdomain: 'z3ntest' }))
+      .stub(auth.secureStore, 'getSecret', () => oauth.encodeOAuthSecret('old-at', 'old-rt', -3600))
+      .it('should clear the stored secret and throw when refresh fails', async () => {
+        const refreshStub = sinon.stub(oauth, 'refreshAccessToken').rejects(new Error('refresh failed'))
+        const deleteSecretStub = sinon.stub(auth.secureStore as SecureStore, 'deleteSecret').resolves(true)
+        try {
+          let thrown: Error | undefined
+          try {
+            await auth.getAuthorizationToken()
+          } catch (error) {
+            thrown = error as Error
+          }
+          expect(thrown?.message).to.equal(chalk.red('Your session has expired and could not be refreshed. Please run `zcli login` again.'))
+          expect(deleteSecretStub.calledWith('z3ntest')).to.equal(true)
+        } finally {
+          refreshStub.restore()
+          deleteSecretStub.restore()
+        }
+      })
+
+    test
       .env({
         ZENDESK_OAUTH_TOKEN: 'test_oauth_token',
         ZENDESK_EMAIL: 'test@zendesk.com',
         ZENDESK_API_TOKEN: 'test_api_token',
         ZENDESK_PASSWORD: '123456'
       })
-      .it('should give precedence to ZENDESK_OAUTH_TOKEN', async () => {
+      .it('should give precedence to ZENDESK_OAUTH_TOKEN over API token', async () => {
         expect(await auth.getAuthorizationToken()).to.equal('Bearer test_oauth_token')
       })
 
@@ -75,121 +310,136 @@ describe('Auth', () => {
       .it('should throw an error if only ZENDESK_EMAIL and ZENDESK_PASSWORD are set - basic auth with password not supported')
   })
 
-  describe('loginInteractively', () => {
+  describe('loginWithOAuth', () => {
     const auth = new Auth({ secureStore: new SecureStore() })
-    const promptStub = sinon.stub()
-    let fetchStub: sinon.SinonStub
-
-    beforeEach(() => {
-      fetchStub = sinon.stub(global, 'fetch')
-    })
+    let stubs: sinon.SinonStub[] = []
 
     afterEach(() => {
-      fetchStub.restore()
+      stubs.forEach(s => s.restore())
+      stubs = []
     })
 
+    it('stores the exchanged tokens and sets the active profile on success', async () => {
+      stubs.push(sinon.stub(oauth, 'startCallbackServer').resolves({
+        port: 8976,
+        waitForCallback: () => Promise.resolve({ code: 'the-code', state: 'the-state' }),
+        close: sinon.stub()
+      }))
+      stubs.push(sinon.stub(oauth, 'exchangeCodeForToken').resolves({
+        access_token: 'at',
+        refresh_token: 'rt',
+        expires_in: 3600,
+        token_type: 'bearer',
+        scope: 'read write'
+      }))
+      const setSecretStub = sinon.stub(auth.secureStore as SecureStore, 'setSecret').resolves()
+      const setLoggedInProfileStub = sinon.stub(auth, 'setLoggedInProfile').resolves()
+      stubs.push(setSecretStub, setLoggedInProfileStub)
+
+      const success = await auth.loginWithOAuth({ subdomain: 'z3ntest' })
+
+      expect(success).to.equal(true)
+      expect(setSecretStub.calledWith('z3ntest')).to.equal(true)
+      expect(setLoggedInProfileStub.calledWith('z3ntest', undefined)).to.equal(true)
+    })
+
+    it('propagates the ports-in-use error without opening a browser', async () => {
+      const portsInUseError = new Error(oauth.ERR_PORTS_IN_USE)
+      stubs.push(sinon.stub(oauth, 'startCallbackServer').rejects(portsInUseError))
+      const exchangeStub = sinon.stub(oauth, 'exchangeCodeForToken')
+      stubs.push(exchangeStub)
+
+      let thrown: Error | undefined
+      try {
+        await auth.loginWithOAuth({ subdomain: 'z3ntest' })
+      } catch (error) {
+        thrown = error as Error
+      }
+
+      expect(thrown?.message).to.equal(oauth.ERR_PORTS_IN_USE)
+      expect(exchangeStub.called).to.equal(false)
+    })
+
+    it('propagates a callback error without storing anything', async () => {
+      stubs.push(sinon.stub(oauth, 'startCallbackServer').resolves({
+        port: 8976,
+        waitForCallback: () => Promise.reject(new Error('Login failed: access_denied')),
+        close: sinon.stub()
+      }))
+      const setSecretStub = sinon.stub(auth.secureStore as SecureStore, 'setSecret').resolves()
+      stubs.push(setSecretStub)
+
+      let thrown: Error | undefined
+      try {
+        await auth.loginWithOAuth({ subdomain: 'z3ntest' })
+      } catch (error) {
+        thrown = error as Error
+      }
+
+      expect(thrown?.message).to.equal('Login failed: access_denied')
+      expect(setSecretStub.called).to.equal(false)
+    })
+  })
+
+  describe('forceRefreshAuthorizationToken', () => {
+    const auth = new Auth({ secureStore: new SecureStore() })
+
     test
-      .do(() => {
-        promptStub.onFirstCall().resolves('z3ntest')
-        promptStub.onSecondCall().resolves('test@zendesk.com')
-        promptStub.onThirdCall().resolves('123456')
-        fetchStub.withArgs(sinon.match({
-          method: 'GET',
-          url: 'https://z3ntest.zendesk.com/api/v2/account/settings.json',
-          headers: new Headers({
-            Accept: 'application/json, text/plain, */*',
-            Authorization: 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
-          })
-        }))
-          .resolves({
-            status: 200,
-            ok: true,
-            text: () => Promise.resolve('')
-          })
+      .env({
+        ZENDESK_SUBDOMAIN: 'z3ntest',
+        ZENDESK_OAUTH_CLIENT_ID: 'client-id',
+        ZENDESK_OAUTH_CLIENT_SECRET: 'client-secret'
       })
-      .stub(CliUx.ux, 'prompt', () => promptStub)
-      .stub(auth.secureStore, 'setSecret', () => Promise.resolve())
-      .stub(auth, 'setLoggedInProfile', () => Promise.resolve())
-      .it('should return true on login success', async () => {
-        expect(await auth.loginInteractively()).to.equal(true)
+      .do(async () => {
+        const getConfigStub = sinon.stub(auth.config, 'getConfig').resolves(undefined)
+        const setConfigStub = sinon.stub(auth.config, 'setConfig').resolves()
+        const tokenStub = sinon.stub(oauth, 'fetchClientCredentialsToken').resolves({
+          access_token: 'forced-new-token',
+          expires_in: 3600
+        })
+        try {
+          expect(await auth.forceRefreshAuthorizationToken()).to.equal('Bearer forced-new-token')
+          expect(tokenStub.calledOnce).to.equal(true)
+        } finally {
+          getConfigStub.restore()
+          setConfigStub.restore()
+          tokenStub.restore()
+        }
+      })
+      .it('should obtain a new client-credentials token when refresh is forced')
+
+    test
+      .stub(auth, 'getLoggedInProfile', () => undefined)
+      .it('should return undefined when no profile is logged in', async () => {
+        expect(await auth.forceRefreshAuthorizationToken()).to.equal(undefined)
       })
 
     test
-      .do(() => {
-        promptStub.reset()
-        promptStub.onFirstCall().resolves('z3ntest')
-        promptStub.onSecondCall().resolves('test@zendesk.com')
-        promptStub.onThirdCall().resolves('123456')
-        fetchStub.withArgs(sinon.match({
-          method: 'GET',
-          url: 'https://z3ntest.example.com/api/v2/account/settings.json',
-          headers: new Headers({
-            Accept: 'application/json, text/plain, */*',
-            Authorization: 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
-          })
-        }))
-          .resolves({
-            status: 200,
-            ok: true,
-            text: () => Promise.resolve('')
-          })
-      })
-      .stub(CliUx.ux, 'prompt', () => promptStub)
-      .stub(auth.secureStore, 'setSecret', () => Promise.resolve())
-      .stub(auth, 'setLoggedInProfile', () => Promise.resolve())
-      .it('should login successfully using the passed domain and the prompted subdomain', async () => {
-        expect(await auth.loginInteractively({ domain: 'example.com' } as Profile)).to.equal(true)
+      .stub(auth, 'getLoggedInProfile', () => ({ subdomain: 'z3ntest' }))
+      .stub(auth.secureStore, 'getSecret', () => 'Basic legacy_token')
+      .it('should return undefined for a legacy (non-OAuth) profile', async () => {
+        expect(await auth.forceRefreshAuthorizationToken()).to.equal(undefined)
       })
 
     test
-      .do(() => {
-        promptStub.reset()
-        promptStub.onFirstCall().resolves('test@zendesk.com')
-        promptStub.onSecondCall().resolves('123456')
-        fetchStub.withArgs(sinon.match({
-          method: 'GET',
-          url: 'https://z3ntest.example.com/api/v2/account/settings.json',
-          headers: new Headers({
-            Accept: 'application/json, text/plain, */*',
-            Authorization: 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
-          })
-        }))
-          .resolves({
-            status: 200,
-            ok: true,
-            text: () => Promise.resolve('')
-          })
-      })
-      .stub(CliUx.ux, 'prompt', () => promptStub)
-      .stub(auth.secureStore, 'setSecret', () => Promise.resolve())
-      .stub(auth, 'setLoggedInProfile', () => Promise.resolve())
-      .it('should login successfully using the passed subdomain and domain', async () => {
-        expect(await auth.loginInteractively({ subdomain: 'z3ntest', domain: 'example.com' })).to.equal(true)
-      })
-
-    test
-      .do(() => {
-        promptStub.reset()
-        promptStub.onFirstCall().resolves('z3ntest')
-        promptStub.onSecondCall().resolves('test@zendesk.com')
-        promptStub.onThirdCall().resolves('123456')
-        fetchStub.withArgs(sinon.match({
-          method: 'GET',
-          url: 'https://z3ntest.zendesk.com/api/v2/account/settings.json',
-          headers: new Headers({
-            Accept: 'application/json, text/plain, */*',
-            Authorization: 'Basic dGVzdEB6ZW5kZXNrLmNvbS90b2tlbjoxMjM0NTY='
-          })
-        }))
-          .resolves({
-            status: 403,
-            ok: false,
-            text: () => Promise.resolve('')
-          })
-      })
-      .stub(CliUx.ux, 'prompt', () => promptStub)
-      .it('should return false on login failure', async () => {
-        expect(await auth.loginInteractively()).to.equal(false)
+      .stub(auth, 'getLoggedInProfile', () => ({ subdomain: 'z3ntest' }))
+      .stub(auth.secureStore, 'getSecret', () => oauth.encodeOAuthSecret('old-at', 'old-rt', 3600))
+      .it('should force a refresh and return the new Bearer token', async () => {
+        const refreshStub = sinon.stub(oauth, 'refreshAccessToken').resolves({
+          access_token: 'forced-new-at',
+          refresh_token: 'forced-new-rt',
+          expires_in: 3600,
+          token_type: 'bearer',
+          scope: 'read write'
+        })
+        const setSecretStub = sinon.stub(auth.secureStore as SecureStore, 'setSecret').resolves()
+        try {
+          expect(await auth.forceRefreshAuthorizationToken()).to.equal('Bearer forced-new-at')
+          expect(setSecretStub.calledWith('z3ntest')).to.equal(true)
+        } finally {
+          refreshStub.restore()
+          setSecretStub.restore()
+        }
       })
   })
 

@@ -3,6 +3,84 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0](https://github.com/zendesk/zcli/compare/v1.3.0...v2.0.0) (2026-09-09)
+
+**Note:** Version bump only for package @zendesk/zcli-core
+
+
+
+
+
+# [1.3.0](https://github.com/zendesk/zcli/compare/v1.2.0...v1.3.0) (2026-09-09)
+
+
+### Features
+
+* **auth:** Support OAuth client credentials in zcli for CI/CD ([#407](https://github.com/zendesk/zcli/issues/407)) ([9b5e000](https://github.com/zendesk/zcli/commit/9b5e000bae65f56567737545acd6570533f258b2))
+
+
+
+
+
+# [1.2.0](https://github.com/zendesk/zcli/compare/v1.1.4...v1.2.0) (2026-08-17)
+
+
+### Features
+
+* **auth:** Add browser OAuth PKCE support and deprecate API tokens ([#392](https://github.com/zendesk/zcli/issues/392)) ([c52b105](https://github.com/zendesk/zcli/commit/c52b10534931fce2d4ef88760bfdb265c1b74c3a))
+
+
+
+
+
+## [1.1.4](https://github.com/zendesk/zcli/compare/v1.1.3...v1.1.4) (2026-07-20)
+
+**Note:** Version bump only for package @zendesk/zcli-core
+
+
+
+
+
+# [1.1.0](https://github.com/zendesk/zcli/compare/v1.0.1...v1.1.0) (2026-06-04)
+
+**Note:** Version bump only for package @zendesk/zcli-core
+
+
+
+
+
+# [1.0.0](https://github.com/zendesk/zcli/compare/v1.0.0-beta.57...v1.0.0) (2026-04-23)
+
+**Note:** Version bump only for package @zendesk/zcli-core
+
+
+
+
+
+# [1.0.0-beta.56](https://github.com/zendesk/zcli/compare/v1.0.0-beta.55...v1.0.0-beta.56) (2026-04-10)
+
+**Note:** Version bump only for package @zendesk/zcli-core
+
+
+
+
+
+# [1.0.0-beta.55](https://github.com/zendesk/zcli/compare/v1.0.0-beta.54...v1.0.0-beta.55) (2026-02-04)
+
+**Note:** Version bump only for package @zendesk/zcli-core
+
+
+
+
+
+# [1.0.0-beta.54](https://github.com/zendesk/zcli/compare/v1.0.0-beta.53...v1.0.0-beta.54) (2025-11-26)
+
+**Note:** Version bump only for package @zendesk/zcli-core
+
+
+
+
+
 # [1.0.0-beta.49](https://github.com/zendesk/zcli/compare/v1.0.0-beta.48...v1.0.0-beta.49) (2024-09-05)
 
 **Note:** Version bump only for package @zendesk/zcli-core
