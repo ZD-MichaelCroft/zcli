@@ -21,4 +21,4 @@ jobs:
           exempt-pr-labels: long-term
           days-before-pr-stale: 90
           days-before-pr-close: 14
-          repo-token: ${{ secrets.STALE_WORKFLOW_TOKEN }}
+          repo-token: ${{ github.token }}
